@@ -1,0 +1,27 @@
+services:
+  web:
+    # Önizleme: Electron renderer'ının geliştirme sunucusu (Vite).
+    # Windows paketi için repo'da `npm run dist:win` — konteyner yalnızca arayüzü gösterir.
+    image: node:22
+    labels:
+      - base44.project=AI Asistan Platformu (önizleme)
+      - base44.kind=web
+      - base44.port=3000
+    working_dir: /app
+    volumes:
+      - ./app:/app
+    ports:
+      - "3000:5173"
+    environment:
+      - BASE44_PREVIEW_MODE
+      - __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS
+      # Electron çalıştırılabilir dosyası önizlemede gerekmez; indirmeyi atla.
+      - ELECTRON_SKIP_BINARY_DOWNLOAD=1
+    command: ["sh", "-ec", "npm install --no-audit --no-fund && exec npm run dev"]
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5173/"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
